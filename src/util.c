@@ -1,9 +1,28 @@
 /**
  * Compressed pcap packet indexing program (CPPIP)
  * util.c: utility routines
- * Mike Schiffman <mschiffm@cisco.com>
- * March 2013
+ *
+ * Copyright (c) 2013 - 2014, Mike Schiffman <themikeschiffman@gmail.com>
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to 
+ * deal in the Software without restriction, including without limitation the 
+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
+ * sell copies of the Software, and to permit persons to whom the Software is 
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in 
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ * IN THE SOFTWARE.
  */
+
 #include "../include/cppip.h"
 #include "../include/index_modes.h"
 
@@ -11,8 +30,8 @@ int
 usage()
 {
     printf("\nCompressed Pcap Packet Indexing Program\n");
-    printf("(c) Cisco Systems 2013, Inc\n");
-    printf("Mike Schiffman <mschiffm@cisco.com>\n\n");
+    printf("(c) 2013 - 2014 Mike Schiffman\n");
+    printf("Mike Schiffman <themikeschiffman@gmail.com>\n\n");
     printf("Fast compressed pcap indexing and extraction, made easy\n");
     printf("see http://blogs.cisco.com/tag/cppip for complete documentation\n");
     printf("\nUsage: cppip [options] [file(s)...]\n");
@@ -31,6 +50,8 @@ usage()
     printf("\t\t\tfrom pcap.gz into new.pcap\n");
     printf("\t\t\tinvoke with -I for more information/help on extracting\n");
     printf(" -f\t\t\tenable fuzzy matching (timestamp extraction only)\n");
+    printf("\t\t\tthis is useful if you don't want to specify exact\n");
+    printf("\t\t\toffsets\n");
     printf("\nGeneral Options:\n");
     printf(" -D\t\t\tenable debug messages\n");
     printf(" -V\t\t\tprogram version\n");

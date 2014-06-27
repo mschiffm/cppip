@@ -1,9 +1,28 @@
 /**
  * Compressed pcap packet indexing program (CPPIP)
  * index.c: index creation routines
- * Mike Schiffman <mschiffm@cisco.com>
- * March 2013
+ *
+ * Copyright (c) 2013 - 2014, Mike Schiffman <themikeschiffman@gmail.com>
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to 
+ * deal in the Software without restriction, including without limitation the 
+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or 
+ * sell copies of the Software, and to permit persons to whom the Software is 
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in 
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ * IN THE SOFTWARE.
  */
+ 
 #include "../include/cppip.h"
 
 
@@ -28,8 +47,7 @@ index_dump(cppip_t *c, int mode)
                             strerror(errno));
                     return (-1);
                 }
-                printf("pkt num:%d\n", rec_pn.pkt_num);
-                printf("offset: %llx\n", rec_pn.bgzf_offset);
+                printf("%d, %llx\n", rec_pn.pkt_num, rec_pn.bgzf_offset);
             }
             break;
         case CPPIP_INDEX_TS:
@@ -41,8 +59,8 @@ index_dump(cppip_t *c, int mode)
                             strerror(errno));
                     return (-1);
                 }
-                printf("timestamp:\t%s\n", ctime_usec(&rec_ts.pkt_ts));
-                printf("offset:\t\t%llx\n", rec_ts.bgzf_offset);
+                printf("%s, %llx\n", ctime_usec(&rec_ts.pkt_ts), 
+                        rec_ts.bgzf_offset);
             }
             break;
     }
@@ -358,8 +376,7 @@ index_by_ts(cppip_t *c)
         /**  ...[pcap packet header][packet]...
          *      ^
          *      bgzf fp is pointing here, the BGZF offset to this 
-         *      packet.. This is
-         *      the offset we will record in our index
+         *      packet.. This is the offset we will record in our index
          */
         offset = bgzf_tell(c->pcap);
         switch (bgzf_read(c->pcap, buf, PCAP_PKTH_SIZ))

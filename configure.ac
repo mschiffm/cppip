@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.69])
-AC_INIT([Compressed Pcap Packet Indexing Program], [1.1], [mschiffm@cisco.com])
+AC_INIT([Compressed Pcap Packet Indexing Program], [1.2], [themikeschiffman@gmail.com])
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
 AC_CONFIG_SRCDIR([src/main.c])
 AC_CONFIG_HEADERS([config.h])
