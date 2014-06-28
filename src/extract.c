@@ -229,13 +229,17 @@ extract_by_ts(cppip_t *c)
                 c->cppip_index_ts_hdr.index_level.tv_sec, 
                 (uint32_t)c->cppip_index_ts_hdr.index_level.tv_usec);
     }
+    /** sanity check: stop ts should not come before first packet ts */
+    if (timercmp(&c->e_pkts.ts_stop, &rec.pkt_ts, <))
+    {
+        snprintf(c->errbuf, BUFSIZ,
+            "stop timestamp < first packet's timestamp (%s < %s)\n",
+            ctime_usec(&c->e_pkts.ts_stop), ctime_usec(&rec.pkt_ts));
+        return -1;
+    }
     if (!(c->flags & CPPIP_CTRL_TS_FM))
     {
-        /** 
-         * sanity check if we're not fuzzy matching:
-         * We already know stop ts > start ts --
-         * make sure start ts > first ts.
-         */
+        /** sanity check: make sure start ts > first ts */
         if (timercmp(&c->e_pkts.ts_start, &rec.pkt_ts, <))
         {
             snprintf(c->errbuf, BUFSIZ, 
