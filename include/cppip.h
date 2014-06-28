@@ -334,7 +334,7 @@ linear_search_ts(cppip_t *c, struct timeval *, pcap_offline_pkthdr_t *pcap_h);
  * all numerics of the form: "n or n-m", first packet is less than second packet).
  */
 int
-pkt_range_check(char *pkt_range, int *pkt_first, int *pkt_last);
+pkt_range_check(char *pkt_range, uint32_t *pkt_first, uint32_t *pkt_last);
 
 int
 opt_parse_extract(char *opt_s, cppip_t *c);
@@ -364,6 +364,9 @@ index_open(char *index_fname, int mode, cppip_t *c, char *errbuf);
 int
 index_dump_modes();
 
+int
+index_dispatch(cppip_t *c);
+
 void
 convert_timeval(struct timeval *ts, uint32_t *d, uint32_t *h, uint32_t *m,
 uint32_t *s, uint32_t *u);
@@ -379,6 +382,9 @@ ctime_usec(struct timeval *ts);
 
 char *
 lookup_index_mode(int mode);
+
+int
+version();
 
 #endif
 /** EOF */

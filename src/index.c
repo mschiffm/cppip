@@ -45,7 +45,7 @@ index_dump(cppip_t *c, int mode)
                 {
                     snprintf(c->errbuf, BUFSIZ, "read() error: %s\n",
                             strerror(errno));
-                    return (-1);
+                    return -1;
                 }
                 printf("%d, %llx\n", rec_pn.pkt_num, rec_pn.bgzf_offset);
             }
@@ -57,14 +57,14 @@ index_dump(cppip_t *c, int mode)
                 {
                     snprintf(c->errbuf, BUFSIZ, "read() error: %s\n",
                             strerror(errno));
-                    return (-1);
+                    return -1;
                 }
                 printf("%s, %llx\n", ctime_usec(&rec_ts.pkt_ts), 
                         rec_ts.bgzf_offset);
             }
             break;
     }
-    return (1);
+    return 1;
 }
 
 
@@ -108,15 +108,15 @@ index_dispatch(cppip_t *c)
             {
                 snprintf(c->errbuf, BUFSIZ, "index_level too small: %d\n", 
                 c->index_level.num);
-                return (-1);
+                return -1;
             }
-            return (index_create(c));
+            return index_create(c);
         case CPPIP_INDEX_TS:
-            return (index_create(c));
+            return index_create(c);
         default:
             snprintf(c->errbuf, BUFSIZ, "unknown packet indexing mode: %d\n", 
                 c->index_mode);
-            return (-1);
+            return -1;
     }
 }
 
@@ -148,10 +148,10 @@ index_open(char *index_fname, int mode, cppip_t *c, char *errbuf)
             break;
         default:
             snprintf(errbuf, BUFSIZ, "unknown mode: %d\n", mode);
-            return (-1);
+            return -1;
     }
     c->index_fname = index_fname;
-    return (c->index);
+    return c->index;
 }
 
 int
@@ -168,7 +168,7 @@ index_create(cppip_t *c)
     if (gettimeofday(&cppip_hdr.ts_created, NULL) == -1)
     {
         snprintf(c->errbuf, BUFSIZ, "gettimeofday(): %s", strerror(errno));
-        return (-1);
+        return -1;
     }
     cppip_hdr.magic         = CPPIP_MAGIC;
     cppip_hdr.version_major = CPPIP_VERSION_MAJOR;
@@ -190,7 +190,7 @@ index_create(cppip_t *c)
     if (write(c->index, &cppip_hdr, CPPIP_FH_SIZ) == -1)
     {
         snprintf(c->errbuf, BUFSIZ, "write() error: %s", strerror(errno));
-        return (-1);
+        return -1;
     }
     /** 
      *  Write index headers -- as placeholders for now, fill in the goods
@@ -204,12 +204,12 @@ index_create(cppip_t *c)
         if (cppip_hdr_index_pn_offset == -1)
         {
             snprintf(c->errbuf, BUFSIZ, "lseek(): %s", strerror(errno));
-            return (-1);
+            return -1;
         }
         if (write(c->index, &cppip_hdr_index_pn, CPPIP_INDEX_PN_H_SIZ) == -1)
         {
             snprintf(c->errbuf, BUFSIZ, "write() error: %s", strerror(errno));
-            return (-1);
+            return -1;
         }
     }
     if ((c->index_mode) & CPPIP_INDEX_TS)
@@ -218,12 +218,12 @@ index_create(cppip_t *c)
         if (cppip_hdr_index_ts_offset == -1)
         {
             snprintf(c->errbuf, BUFSIZ, "lseek(): %s", strerror(errno));
-            return (-1);
+            return -1;
         }
         if (write(c->index, &cppip_hdr_index_ts, CPPIP_INDEX_TS_H_SIZ) == -1)
         {
             snprintf(c->errbuf, BUFSIZ, "write() error: %s", strerror(errno));
-            return (-1);
+            return -1;
         }
     }
 
@@ -231,7 +231,7 @@ index_create(cppip_t *c)
     if (bgzf_skip(c->pcap, 24) == -1)
     {
         snprintf(c->errbuf, BUFSIZ, "bgzf_skip() error\n");
-        return (-1);
+        return -1;
     }
 
     /** handle packet number index header and data */
@@ -240,7 +240,7 @@ index_create(cppip_t *c)
         n = index_by_pn(c);
         if (n == -1)
         {
-            return (-1);
+            return -1;
         }
         cppip_hdr_index_pn.index_mode    = CPPIP_INDEX_PN;
         cppip_hdr_index_pn.reserved1     = 0;
@@ -253,7 +253,7 @@ index_create(cppip_t *c)
                         CPPIP_INDEX_PN_H_SIZ) == -1)
         {
             snprintf(c->errbuf, BUFSIZ, "write() error: %s", strerror(errno));
-            return (-1);
+            return -1;
         }
         /** XXX clean this up */
         cppip_hdr.pkt_cnt = c->cppip_h.pkt_cnt;
@@ -265,7 +265,7 @@ index_create(cppip_t *c)
         n = index_by_ts(c);
         if (n == -1)
         {
-            return (-1);
+            return -1;
         }
         cppip_hdr_index_ts.index_mode    = CPPIP_INDEX_TS;
         cppip_hdr_index_ts.reserved1     = 0;
@@ -279,14 +279,14 @@ index_create(cppip_t *c)
                         CPPIP_INDEX_TS_H_SIZ) == -1)
         {
             snprintf(c->errbuf, BUFSIZ, "write() error: %s", strerror(errno));
-            return (-1);
+            return -1;
         }
         /** XXX clean this up */
         cppip_hdr.pkt_cnt = c->cppip_h.pkt_cnt;
         lseek(c->index, 0, SEEK_SET);
         write(c->index, &cppip_hdr, CPPIP_FH_SIZ);
     }
-    return (n);
+    return n;
 }
 
 int
@@ -313,7 +313,7 @@ index_by_pn(cppip_t *c)
         {
             case -1:
                 snprintf(c->errbuf, BUFSIZ, "bgzf_read() error\n");
-                return (-1);
+                return -1;
             case 0:
                 /* all done */
                 done = 1;
@@ -329,7 +329,7 @@ index_by_pn(cppip_t *c)
                     {
                         snprintf(c->errbuf, BUFSIZ, "write(): %s", 
                                 strerror(errno));
-                        return (-1);
+                        return -1;
                     }
                     rec_cnt++;
                     if (c->flags & CPPIP_CTRL_DEBUG)
@@ -345,7 +345,7 @@ index_by_pn(cppip_t *c)
                 if (bgzf_skip(c->pcap, pcap_h->caplen) == -1)
                 {
                     snprintf(c->errbuf, BUFSIZ, "bgzf_skip() error\n");
-                    return (-1);
+                    return -1;
                 }
         }
     }
@@ -353,10 +353,10 @@ index_by_pn(cppip_t *c)
     {
         snprintf(c->errbuf, BUFSIZ, 
                 "wrote 0 records, index_level too large for this pcap?\n");
-        return (-1);
+        return -1;
     }
     c->cppip_h.pkt_cnt = pkt_cnt;
-    return (rec_cnt);
+    return rec_cnt;
 }
 
 int
@@ -383,7 +383,7 @@ index_by_ts(cppip_t *c)
         {
             case -1:
                 snprintf(c->errbuf, BUFSIZ, "bgzf_read() error\n");
-                return (-1);
+                return -1;
             case 0:
                 /* all done */
                 done = 1;
@@ -407,7 +407,7 @@ index_by_ts(cppip_t *c)
                     {
                         snprintf(c->errbuf, BUFSIZ, "write(): %s",
                                 strerror(errno));
-                        return (-1);
+                        return -1;
                     }
                     rec_cnt++;
                     if (c->flags & CPPIP_CTRL_DEBUG)
@@ -427,12 +427,12 @@ index_by_ts(cppip_t *c)
                 if (bgzf_skip(c->pcap, pcap_h->caplen) == -1)
                 {
                     snprintf(c->errbuf, BUFSIZ, "bgzf_skip() error\n");
-                    return (-1);
+                    return -1;
                 }
         }
     }
     c->cppip_h.pkt_cnt = pkt_cnt;
-    return (rec_cnt);
+    return rec_cnt;
 }
 
 /** EOF */

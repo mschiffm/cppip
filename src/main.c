@@ -35,9 +35,9 @@ main(int argc, char **argv)
 
     if (argc == 1)
     {
-        return(usage());
+        return usage();
     }
-    mode, flags = 0;
+    mode = flags = 0;
     while ((opt = getopt(argc, argv, "DdvIi:he:fiV")) >= 0)
     {
         switch (opt)
@@ -48,7 +48,7 @@ main(int argc, char **argv)
             case 'd':
                 if (argc - optind != 1)
                 {
-                    return (usage());
+                    return usage();
                 }
                 mode = DUMP;
                 c = control_context_init(flags, argv[optind], NULL, NULL, NULL,
@@ -58,7 +58,7 @@ main(int argc, char **argv)
                 /** -e index_mode:n{-m} index pcap.bz new.pcap */
                 if (argc - optind != 3)
                 {
-                    return (usage());
+                    return usage();
                 }
                 opt_s = optarg;
                 mode  = EXTRACT;
@@ -69,14 +69,14 @@ main(int argc, char **argv)
                 flags |= CPPIP_CTRL_TS_FM;
                 break;
             case 'h':
-                return (usage());
+                return usage();
             case 'I':
-                return (index_dump_modes());
+                return index_dump_modes();
             case 'i':
                 /** -i index_mode:index_level */
                 if (argc - optind != 2)
                 {
-                    return (usage());
+                    return usage();
                 }
                 opt_s = optarg;
                 mode  = INDEX;
@@ -84,24 +84,24 @@ main(int argc, char **argv)
                                          NULL, opt_s, mode, errbuf);
                 break;
             case 'V':
-                return (version());
+                return version();
             case 'v':
                 if (argc - optind != 1)
                 {
-                    return (usage());
+                    return usage();
                 }
                 mode = VERIFY;
                 c = control_context_init(flags, argv[optind], NULL, NULL, NULL,
                                          mode, errbuf);
                 break;
             default:
-                return (usage());
+                return usage();
         }
     }
     if (c == NULL)
     {
         fprintf(stderr, "control_context_init(): %s", errbuf);
-        return (-1);
+        return -1;
     }
 
     if (cppip_dispatch(mode, c) == -1)
@@ -113,7 +113,7 @@ main(int argc, char **argv)
     {
         control_context_destroy(c);
     }
-    return (1);
+    return 1;
 }
 
 int
@@ -125,23 +125,23 @@ cppip_dispatch(int mode, cppip_t *c)
     switch (mode)
     {
         case DUMP:
-            return (index_verify(c, V_DETAILED | V_DUMP));
+            return index_verify(c, V_DUMP);
         case INDEX:
             printf("indexing %s...\n", c->pcap_fname);
             n = index_dispatch(c);
             if (n == -1)
             {
-                return (-1);
+                return -1;
             }
             else
             {
                 fprintf(stderr, "wrote %d records to %s\n", n, c->index_fname);
             }
-            return (n);
+            return n;
         case EXTRACT:
             if (index_verify(c, 0) == -1)
             {
-                return (-1);
+                return -1;
             }
             printf("extracting from %s using %s...\n", c->pcap_fname, 
                                                        c->index_fname);
@@ -154,12 +154,12 @@ cppip_dispatch(int mode, cppip_t *c)
                         c->pcap_new_fname);
             break;
         case VERIFY:
-            return (index_verify(c, V_DETAILED));
+            return index_verify(c, V_DETAILED);
         default:
             snprintf(c->errbuf, BUFSIZ, "unknown mode: %d\n", mode);
-            return (-1);
+            return -1;
     }
-    return (1);
+    return 1;
 }
 
 /** EOF */

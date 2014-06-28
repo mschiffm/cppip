@@ -36,7 +36,7 @@ control_context_init(uint8_t flags, char *index_fname, char *pcap_fname,
     if (c == NULL)
     {
         snprintf(errbuf, BUFSIZ, "malloc(): %s", strerror(errno));
-        return (NULL);
+        return NULL;
     }
     memset(c, 0, sizeof (cppip_t));
 
@@ -109,10 +109,10 @@ control_context_init(uint8_t flags, char *index_fname, char *pcap_fname,
     {
         goto err;
     }
-    return (c);
+    return c;
 err:
     control_context_destroy(c);
-    return (NULL);
+    return NULL;
 }
 
 void

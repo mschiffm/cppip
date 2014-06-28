@@ -25,6 +25,7 @@
 
 #include "../include/cppip.h"
 #include "../include/index_modes.h"
+#include <ctype.h>
 
 int
 usage()
@@ -57,13 +58,13 @@ usage()
     printf(" -V\t\t\tprogram version\n");
     printf(" -h\t\t\tthis message\n");
 
-    return (1);
+    return 1;
 }
 
 char *
 lookup_index_mode(int mode)
 {
-    return (index_modes[mode]);
+    return index_modes[mode];
 }
 
 int
@@ -77,7 +78,7 @@ index_dump_modes()
         fprintf(stderr, "%s", index_help[i]);
     }
     
-    return (1);
+    return 1;
 }
 
 
@@ -86,7 +87,7 @@ version()
 {
     fprintf(stderr, "version: %d.%d\n", CPPIP_VERSION_MAJOR, 
                                         CPPIP_VERSION_MINOR);
-    return (1);
+    return 1;
 }
 
 
@@ -97,10 +98,10 @@ bgzf_skip(BGZF *f, int skip_bytes)
     {
         if (bgzf_getc(f) == -1)
         {
-            return (-1);
+            return -1;
         }
     }
-    return (1);
+    return 1;
 }
 
 int
@@ -121,7 +122,7 @@ opt_parse_extract(char *opt_s, cppip_t *c)
     if (s == NULL || opt_s == NULL)
     {
         snprintf(c->errbuf, BUFSIZ, "empty extract string\n");
-        return (-1);
+        return -1;
     }
 
     /** validate the indexing mode */
@@ -137,13 +138,13 @@ opt_parse_extract(char *opt_s, cppip_t *c)
     {
         snprintf(c->errbuf, BUFSIZ, "invalid extract string: %s\n", q);
         free(q);
-        return (-1);
+        return -1;
     }
     switch (c->index_mode)
     {
         case CPPIP_INDEX_PN:
-            return (pkt_range_check(opt_s, &(c->e_pkts.pkt_start), 
-                                           &(c->e_pkts.pkt_stop)));
+            return pkt_range_check(opt_s, &(c->e_pkts.pkt_start), 
+                        &(c->e_pkts.pkt_stop));
         case CPPIP_INDEX_TS:
             memset(&tm_s, 0, sizeof (struct tm));
             memset(&tm_e, 0, sizeof (struct tm));
@@ -167,7 +168,7 @@ opt_parse_extract(char *opt_s, cppip_t *c)
                     snprintf(c->errbuf, BUFSIZ, 
                             "invalid extract string: %s\n", q);
                 free(q);
-                return (-1);
+                return -1;
                 }
             }
             /** tm structs index from 0 so adjust these (year is -1900) */
@@ -187,10 +188,10 @@ opt_parse_extract(char *opt_s, cppip_t *c)
                 "invalid extract string: start ts > stop ts (%s > %s)\n",
                 ctime_usec(&c->e_pkts.ts_start), 
                 ctime_usec(&c->e_pkts.ts_stop));
-                return (-1);
+                return -1;
             }
     }
-    return (1);
+    return 1;
 }
 
 
@@ -206,7 +207,7 @@ opt_parse_index(char *opt_s, cppip_t *c)
     if (s == NULL || opt_s == NULL)
     {
         snprintf(c->errbuf, BUFSIZ, "empty index string\n");
-        return (-1);
+        return -1;
     }
 
     /** validate the indexing mode */
@@ -222,7 +223,7 @@ opt_parse_index(char *opt_s, cppip_t *c)
     {
         snprintf(c->errbuf, BUFSIZ, "invalid index string: %s\n", q);
         free(q);
-        return (-1);
+        return -1;
     }
     switch (c->index_mode)
     {
@@ -234,7 +235,7 @@ opt_parse_index(char *opt_s, cppip_t *c)
                     snprintf(c->errbuf, BUFSIZ, "invalid index string: %s\n", 
                             q);
                     free(q);
-                    return (-1);
+                    return -1;
                 }
             }
             c->index_level.num = strtol(opt_s, NULL, 10);
@@ -274,11 +275,11 @@ opt_parse_index(char *opt_s, cppip_t *c)
                             "invalid index specifier: `%c`\n", 
                             opt_s[strlen(opt_s) - 1]);
                     free(q);
-                    return (-1);
+                    return -1;
             }
             break;
     }
-    return (1);
+    return 1;
 }
 
 char *
@@ -299,14 +300,14 @@ ctime_usec(struct timeval *ts)
     timetm = localtime(&time);
     strftime(tmbuf, sizeof (tmbuf), "%Y-%m-%d %H:%M:%S", timetm);
     snprintf(s, 64, "%s.%06d", tmbuf, ts->tv_usec);
-    return (s);
+    return s;
 }
 
 void
 convert_timeval(struct timeval *ts, uint32_t *d, uint32_t *h, uint32_t *m,
 uint32_t *s, uint32_t *u)
 {
-    uint32_t d1, s1;
+    int64_t d1, s1;
 
     d1 = floor(ts->tv_sec / 86400);
     s1 = ts->tv_sec - 86400 * d1;
@@ -330,7 +331,7 @@ uint32_t *s, uint32_t *u)
 }
 
 int
-pkt_range_check(char *pkt_range, int *pkt_start, int *pkt_stop)
+pkt_range_check(char *pkt_range, uint32_t *pkt_start, uint32_t *pkt_stop)
 {
     uint8_t legal_tokens[] = "0123456789-";
     char buf[BUFSIZ], *p;
@@ -349,7 +350,7 @@ pkt_range_check(char *pkt_range, int *pkt_start, int *pkt_stop)
         }
         if (!valid_token)
         {
-            return (-1);
+            return -1;
         }
     }
     memset(&buf, 0, sizeof (buf));
@@ -359,7 +360,7 @@ pkt_range_check(char *pkt_range, int *pkt_start, int *pkt_stop)
     *pkt_start = strtol(pkt_range, &p, 10);
     if (*pkt_start == 0)
     {
-        return (-1);
+        return -1;
     }
     if (p[0] == '-')
     {
@@ -373,9 +374,9 @@ pkt_range_check(char *pkt_range, int *pkt_start, int *pkt_stop)
     /** well that won't work! */
     if (*pkt_start > *pkt_stop)
     {
-        return (-1);
+        return -1;
     }
-    return (1);
+    return 1;
 }
 
 /** EOF */

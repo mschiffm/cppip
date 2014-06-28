@@ -36,25 +36,25 @@ extract(cppip_t *c)
     if (bgzf_read(c->pcap, buf, 24) != 24)
     {
         snprintf(c->errbuf, BUFSIZ, "bgzf_read() error: can't read pcap\n");
-        return (-1);
+        return -1;
     }
     if (write(c->pcap_new, buf, 24) != 24)
     {
         snprintf(c->errbuf, BUFSIZ, "write() error: %s\n", strerror(errno));
-        return (-1);
+        return -1;
     }
 
     switch (c->index_mode)
     {
         case CPPIP_INDEX_PN:
-            return (extract_by_pn(c));
+            return extract_by_pn(c);
         case CPPIP_INDEX_TS:
-            return (extract_by_ts(c));
+            return extract_by_ts(c);
         default:
             snprintf(c->errbuf, BUFSIZ, "unknown extract mode\n");
-            return (-1);
+            return -1;
     }
-    return (1);
+    return 1;
 }
 
 int
@@ -73,7 +73,7 @@ extract_by_pn(cppip_t *c)
         snprintf(c->errbuf, BUFSIZ, 
             "extraction would exceed packet count, %d and/or %d > %d\n", 
             c->e_pkts.pkt_start, c->e_pkts.pkt_stop, c->cppip_h.pkt_cnt);
-        return (-1);
+        return -1;
     }
 
     /** 
@@ -90,7 +90,7 @@ extract_by_pn(cppip_t *c)
     {
         if (linear_search(c, 1, c->e_pkts.pkt_start) == -1)
         {
-            return (-1);
+            return -1;
         }
     }
     /** seek to index, obtain closest offset, linear search from there */
@@ -107,22 +107,22 @@ extract_by_pn(cppip_t *c)
             SEEK_SET) == -1)
         {
             snprintf(c->errbuf, BUFSIZ, "lseek() error: %s\n", strerror(errno));
-            return (-1);
+            return -1;
         }
         if (read(c->index, (cppip_record_pn_t *)&rec, CPPIP_REC_PN_SIZ) 
             != CPPIP_REC_PN_SIZ)
         {
             snprintf(c->errbuf, BUFSIZ, "read() error: %s\n", strerror(errno));
-            return (-1);
+            return -1;
         }
         if (bgzf_seek(c->pcap, rec.bgzf_offset, SEEK_SET) == -1)
         {
             snprintf(c->errbuf, BUFSIZ, "bgzf_seek() error.\n");
-            return (-1);
+            return -1;
         }
         if (linear_search(c, rec.pkt_num, c->e_pkts.pkt_start) == -1)
         {
-            return (-1);
+            return -1;
         }
     }
     /** we've got pkt_first, do extraction until we hit pkt_last */
@@ -134,14 +134,14 @@ extract_by_pn(cppip_t *c)
         {
             snprintf(c->errbuf, BUFSIZ, 
                 "bgzf_read() error: cant read pcap hdr\n");
-            return (-1);
+            return -1;
         }
         pkt_caplen = pcap_h.caplen;
         if (bgzf_read(c->pcap, buf, pkt_caplen) != pkt_caplen)
         {
             snprintf(c->errbuf, BUFSIZ, 
                 "bgzf_read() error: can't read packet\n");
-            return (-1);
+            return -1;
         }
         memcpy(&buf2, &pcap_h, PCAP_PKTH_SIZ);
         memcpy(&buf2[PCAP_PKTH_SIZ], &buf, pkt_caplen);
@@ -149,10 +149,10 @@ extract_by_pn(cppip_t *c)
                 PCAP_PKTH_SIZ + pkt_caplen)
         {
             snprintf(c->errbuf, BUFSIZ, "write() error: %s\n", strerror(errno));
-            return (-1);
+            return -1;
         }
     }
-    return (1);
+    return 1;
 }
 
 int
@@ -172,21 +172,21 @@ linear_search(cppip_t *c, int start, int pkt_start)
         {
             snprintf(c->errbuf, BUFSIZ, 
                 "bgzf_read() error: cant read pcap hdr\n");
-            return (-1);
+            return -1;
         }
 
         /** skip past the packet */
         if (bgzf_skip(c->pcap, pcap_h.caplen) == -1)
         {
             snprintf(c->errbuf, BUFSIZ, "bgzf_skip() error.\n");
-            return (-1);
+            return -1;
         }
     }
     if (c->flags & CPPIP_CTRL_DEBUG)
     {
         fprintf(stderr, "DBG: match at iteration:\t%d\n", i);
     }
-    return (1);
+    return 1;
 }
 
 int
@@ -215,7 +215,7 @@ extract_by_ts(cppip_t *c)
         != CPPIP_REC_TS_SIZ)
     {
         snprintf(c->errbuf, BUFSIZ, "read() error: %s\n", strerror(errno));
-        return (-1);
+        return -1;
     }
     if (c->flags & CPPIP_CTRL_DEBUG)
     {
@@ -241,14 +241,14 @@ extract_by_ts(cppip_t *c)
             snprintf(c->errbuf, BUFSIZ, 
                 "start timestamp < first packet's timestamp (%s < %s)\n",
                 ctime_usec(&c->e_pkts.ts_start), ctime_usec(&rec.pkt_ts));
-            return (-1);
+            return -1;
         }
     }
-
+#if 0
     /**
      * subtract first packet's ts from the starting packet's ts to obtain a
      * differential which we then divide by the index_level to obtain
-     * a multiplier to use to advance to the correct packet.
+     * a multiplier to use to advance to the correct packet offset.
      *
      * Currently all of this only works for second level resolution.
      */
@@ -260,7 +260,7 @@ extract_by_ts(cppip_t *c)
     {
         snprintf(c->errbuf, BUFSIZ, 
         "tried to seek too many records (%d > %d) start ts too far in future for %s?\n", mul, c->cppip_index_ts_hdr.rec_cnt, c->pcap_fname);
-        return (-1);
+        return -1;
     }
     if (c->flags & CPPIP_CTRL_DEBUG)
     {
@@ -273,13 +273,13 @@ extract_by_ts(cppip_t *c)
                 SEEK_SET) == -1)
     {
         snprintf(c->errbuf, BUFSIZ, "lseek() error: %s\n", strerror(errno));
-        return (-1);
+        return -1;
     }
     if (read(c->index, (cppip_record_ts_t *)&rec, CPPIP_REC_TS_SIZ) 
                 != CPPIP_REC_TS_SIZ)
     {
         snprintf(c->errbuf, BUFSIZ, "read() error: %s\n", strerror(errno));
-        return (-1);
+        return -1;
     }
     if (c->flags & CPPIP_CTRL_DEBUG)
     {
@@ -289,14 +289,15 @@ extract_by_ts(cppip_t *c)
     if (bgzf_seek(c->pcap, rec.bgzf_offset, SEEK_SET) == -1)
     {
         snprintf(c->errbuf, BUFSIZ, "bgzf_seek() error.\n");
-        return (-1);
+        return -1;
     }
+#endif 
     /** linear search will return with the first packet we need to write */
     n = linear_search_ts(c, &c->e_pkts.ts_start, &pcap_h);
     switch (n)
     {
         case -1:
-            return (-1);
+            return -1;
         case 2:
             cur.tv_sec  = pcap_h.tv_sec;
             cur.tv_usec = pcap_h.tv_usec;
@@ -309,7 +310,7 @@ extract_by_ts(cppip_t *c)
     if (bgzf_read(c->pcap, buf, pcap_h.caplen) != pcap_h.caplen)
     {
         snprintf(c->errbuf, BUFSIZ, "bgzf_read() error: can't read packet\n");
-        return (-1);
+        return -1;
     }
 
     memcpy(&buf2, &pcap_h, PCAP_PKTH_SIZ);
@@ -318,7 +319,7 @@ extract_by_ts(cppip_t *c)
             != PCAP_PKTH_SIZ + pcap_h.caplen)
     {
         snprintf(c->errbuf, BUFSIZ, "write() error: %s\n", strerror(errno));
-        return (-1);
+        return -1;
     }
 
     cur.tv_sec  = 0;
@@ -334,11 +335,11 @@ extract_by_ts(cppip_t *c)
                 snprintf(c->errbuf, BUFSIZ, 
                         "bgzf_read(): hit EOF, stop ts: %s not found\n",
                         ctime_usec(&c->e_pkts.ts_stop));
-                return (-1);
+                return -1;
             }
             snprintf(c->errbuf, BUFSIZ, 
                 "bgzf_read() error: cant read pcap hdr\n");
-            return (-1);
+            return -1;
         }
         /** if fuzzy matching is enabled, find the closest possible stop ts */
         if (c->flags & CPPIP_CTRL_TS_FM)
@@ -356,7 +357,7 @@ extract_by_ts(cppip_t *c)
         {
             snprintf(c->errbuf, BUFSIZ, 
                 "bgzf_read() error: can't read packet\n");
-            return (-1);
+            return -1;
         }
         memcpy(&buf2, &pcap_h, PCAP_PKTH_SIZ);
         memcpy(&buf2[PCAP_PKTH_SIZ], &buf, pkt_caplen);
@@ -364,13 +365,13 @@ extract_by_ts(cppip_t *c)
                 PCAP_PKTH_SIZ + pkt_caplen)
         {
             snprintf(c->errbuf, BUFSIZ, "write() error: %s\n", strerror(errno));
-            return (-1);
+            return -1;
         }
         cur.tv_sec  = pcap_h.tv_sec;
         cur.tv_usec = pcap_h.tv_usec;
     }
     
-    return (1);
+    return 1;
 }
 
 int
@@ -395,11 +396,11 @@ linear_search_ts(cppip_t *c, struct timeval *ts_start,
             {
                 snprintf(c->errbuf, BUFSIZ, 
                         "bgzf_read(): hit EOF, start ts not found\n");
-                return (-1);
+                return -1;
             }
             snprintf(c->errbuf, BUFSIZ, 
                 "bgzf_read() error: cant read pcap hdr\n");
-            return (-1);
+            return -1;
         }
         cur.tv_sec  = pcap_h->tv_sec;
         cur.tv_usec = pcap_h->tv_usec;
@@ -410,7 +411,7 @@ linear_search_ts(cppip_t *c, struct timeval *ts_start,
             {
                 fprintf(stderr, "DBG: match at iteration:\t%d\n", i);
             }
-            return (1);
+            return 1;
         }
         /** check to see if current ts has exceed start ts */
         if (timercmp(ts_start, &cur, <))
@@ -423,21 +424,21 @@ linear_search_ts(cppip_t *c, struct timeval *ts_start,
                     fprintf(stderr, "DBG: fuzzy match at iteration:\t%d\n", i);
                 }
                 /** at some point we should inform the user we made a FM */
-                return (2);
+                return 2;
             }
             snprintf(c->errbuf, BUFSIZ, 
                 "%s not found, closest is %s (try -f)\n",
                 ctime_usec(ts_start), ctime_usec(&cur));
-            return (-1);
+            return -1;
         }
         /** skip past the packet */
         if (bgzf_skip(c->pcap, pcap_h->caplen) == -1)
         {
             snprintf(c->errbuf, BUFSIZ, "bgzf_skip() error.\n");
-            return (-1);
+            return -1;
         }
     }
-    return (1);
+    return 1;
 }
 
 

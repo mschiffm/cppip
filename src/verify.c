@@ -37,14 +37,14 @@ index_verify(cppip_t *c, int mode)
     {
         snprintf(c->errbuf, BUFSIZ, 
             "can't stat %s: %s\n", c->index_fname, strerror(errno));
-        return (-1);
+        return -1;
     }
     if (stat_buf.st_size <= CPPIP_FH_SIZ + CPPIP_INDEX_PN_H_SIZ + 
                             CPPIP_REC_PN_SIZ)
     {
         snprintf(c->errbuf, BUFSIZ, 
             "%s is too small to be a valid cppip index\n", c->index_fname);
-        return (-1);
+        return -1;
     }
 
     /** make sure we're at the beggining of the file and peel the header */
@@ -53,7 +53,7 @@ index_verify(cppip_t *c, int mode)
     if (read(c->index, &c->cppip_h, CPPIP_FH_SIZ) != CPPIP_FH_SIZ)
     {
         snprintf(c->errbuf, BUFSIZ, "read() error: %s\n", strerror(errno));
-        return (-1);
+        return -1;
     }
 
     if (c->cppip_h.magic != CPPIP_MAGIC)
@@ -61,7 +61,7 @@ index_verify(cppip_t *c, int mode)
         snprintf(c->errbuf, BUFSIZ, 
             "bad magic: %0x. Is `%s` a cppip index file?\n", c->cppip_h.magic, 
             c->index_fname);
-        return (-1);
+        return -1;
     }
 
     /** iterate over file header options */
@@ -71,7 +71,7 @@ index_verify(cppip_t *c, int mode)
         if (pread(c->index, &type, 1, lseek(c->index, 0, SEEK_CUR)) == -1)
         {
             snprintf(c->errbuf, BUFSIZ, "read() error: %s\n", strerror(errno));
-            return (-1);
+            return -1;
         }
         switch (type)
         {
@@ -81,14 +81,14 @@ index_verify(cppip_t *c, int mode)
                 {
                     snprintf(c->errbuf, BUFSIZ, "read() error: %s\n",
                         strerror(errno));
-                    return (-1);
+                    return -1;
                 }
                 n -= CPPIP_INDEX_PN_H_SIZ / 4;
                 if (n < 0)
                 {
                     snprintf(c->errbuf, BUFSIZ, 
                         "header size mismatch: %d\n", n);
-                    return (-1);
+                    return -1;
                 }
                 break;
             case CPPIP_INDEX_TS:
@@ -97,20 +97,20 @@ index_verify(cppip_t *c, int mode)
                 {
                     snprintf(c->errbuf, BUFSIZ, "read() error: %s\n",
                         strerror(errno));
-                    return (-1);
+                    return -1;
                 }
                 n -= CPPIP_INDEX_TS_H_SIZ / 4;
                 if (n < 0)
                 {
                     snprintf(c->errbuf, BUFSIZ, 
                         "header size mismatch: %d\n", n);
-                    return (-1);
+                    return -1;
                 }
                 break;
             default:
                 snprintf(c->errbuf, BUFSIZ, 
                     "unknown index mode: %d\n", type);
-                return (-1);
+                return -1;
         }
     }
     if (mode & V_DETAILED)
@@ -119,9 +119,9 @@ index_verify(cppip_t *c, int mode)
     }
     if (mode & V_DUMP)
     {
-        return (index_dump(c, type));
+        return index_dump(c, type);
     }
-    return (1);
+    return 1;
 }
 
 
