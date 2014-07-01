@@ -34,7 +34,7 @@ usage()
     printf("(c) 2013 - 2014 Mike Schiffman\n");
     printf("Mike Schiffman <themikeschiffman@gmail.com>\n\n");
     printf("Fast compressed pcap indexing and extraction, made easy\n");
-    printf("see http://blogs.cisco.com/tag/cppip for complete documentation\n");
+    printf("see https://github.com/mschiffm/cppip for complete documentation\n");
     printf("\nUsage: cppip [options] [file(s)...]\n");
     printf("\nIndexing:\n");
     printf(" -i index_mode:index_level index.cppip pcap.gz\n");
