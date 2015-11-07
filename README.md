@@ -1,16 +1,15 @@
 cppip
 =====
 
-The Compressed Pcap Packet Indexing Program. 
-This manual covers version `1.4`.
+This is the Compressed Pcap Packet Indexing Program.
+This manual covers version `1.4.0`.
 
 Prologue
 --------
 The Compressed Pcap Packet Indexing Program (cppip) is a tool to enable 
 extremely fast extraction of packets from a compressed pcap file. This tool is 
 intended for security and network folk who work with large pcap files. This 
-README was copied mostly from the original Cisco blog article (written by me)
-found here: http://blogs.cisco.com/security/tools-of-the-trade-the-compressed-pcap-packet-indexing-program/
+README was copied mostly from [my original Cisco blog article](http://blogs.cisco.com/security/tools-of-the-trade-the-compressed-pcap-packet-indexing-program/)
 
 Introduction
 ------------------
