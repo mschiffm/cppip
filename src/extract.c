@@ -64,7 +64,7 @@ extract_by_pn(cppip_t *c)
     cppip_index_pn_hdr_t *pn_h;
     uint32_t i, j, pkt_caplen;
     pcap_offline_pkthdr_t pcap_h;
-    uint8_t buf[BUFSIZ * 2], buf2[BUFSIZ * 2 + 16];
+    uint8_t buf[131072], buf2[131072];
 
 
     /** sanity check only checks stop, we verified earlier stop > start */
@@ -197,7 +197,7 @@ extract_by_ts(cppip_t *c)
     cppip_index_ts_hdr_t *ts_h;
     uint32_t i, pkt_caplen;
     pcap_offline_pkthdr_t pcap_h;
-    uint8_t buf[BUFSIZ * 2], buf2[BUFSIZ * 2 + 16];
+    uint8_t buf[131072], buf2[131072];
     struct timeval cur;
     uint32_t mul, dif;
 
