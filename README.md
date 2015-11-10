@@ -2,7 +2,7 @@ cppip
 =====
 
 This is the Compressed Pcap Packet Indexing Program.
-This manual covers version `1.4.0`.
+This manual covers version `1.5.0`.
 
 Prologue
 --------
