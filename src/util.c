@@ -85,8 +85,9 @@ index_dump_modes()
 int
 version()
 {
-    fprintf(stderr, "version: %d.%d\n", CPPIP_VERSION_MAJOR, 
-                                        CPPIP_VERSION_MINOR);
+    fprintf(stderr, "version: %d.%d.%d\n", CPPIP_VERSION_MAJOR, 
+                                        CPPIP_VERSION_MINOR,
+                                        CPPIP_VERSION_PATCH);
     return 1;
 }
 

@@ -48,7 +48,8 @@
 #define V_DUMP        0x02
 
 #define CPPIP_VERSION_MAJOR  1
-#define CPPIP_VERSION_MINOR  4
+#define CPPIP_VERSION_MINOR  5
+#define CPPIP_VERSION_PATCH  0
 
 /**
  * Pcap savefiles utilize 16-byte headers. However, depending on the OS, the
