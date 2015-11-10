@@ -31,7 +31,7 @@ int
 usage()
 {
     printf("\nCompressed Pcap Packet Indexing Program\n");
-    printf("(c) 2013 - 2014 Mike Schiffman\n");
+    printf("(c) 2013 - 2015 Mike Schiffman\n");
     printf("Mike Schiffman <themikeschiffman@gmail.com>\n\n");
     printf("Fast compressed pcap indexing and extraction, made easy\n");
     printf("see https://github.com/mschiffm/cppip for complete documentation\n");
